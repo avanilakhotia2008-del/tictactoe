@@ -24,24 +24,94 @@ bool check_tie();
 bool check_win( char player);
 bool check_diag_win (char player);
 
-
 int main(){
-
     char player = 'X';
+    int x_wins = 0;
+    int o_wins = 0;
+    int ties = 0;
+
     print_board();
+
+    while (true) {
+        // Ask the current player to make a move
+        if (!player_turn(player)) {
+            continue;
+        }
+
+        // Check if the current player won
+        if (check_win(player)) {
+            cout << "Player " << player << " wins!" << endl;
+
+            if (player == 'X') {
+                x_wins++;
+            }
+            else {
+                o_wins++;
+            }
+        }
+	// Check if the game ended in a tie
+        else if (check_tie()) {
+            cout << "It's a tie!" << endl;
+	    ties++;
+	}
+        else {
+            // Switch players after a valid move
+            if (player == 'X') {
+                player = 'O';
+            }
+            else {
+                player = 'X';
+            }
+
+            continue;
+        }
+
+        // Display the total wins after a game ends
+        cout << "X wins: " << x_wins << endl;
+        cout << "O wins: " << o_wins << endl;
+	cout << "Ties: "<< ties << endl;
+
+	char again;
+	cout << "Do you wanna play again? (y/n): ";
+	cin >> again;
+
+
+	if (again == 'n' || again == 'N'){
+	  break;
+	}
+        // Reset the board and start a new game
+        reset_board();
+        player = 'X';
+        print_board();
+    }
 
     return 0;
 }
 
+
+void reset_board(){
+    for (int row_index = 0; row_index < 3; row_index++){
+        for (int col_index = 0; col_index < 3; col_index++){
+            board[row_index][col_index] = '_';
+        }
+    }
+}
+
 bool  player_turn(char player){
       //asking player for move                                                                          
-    cout << "Player  enter your row: "<<endl;
+  cout << "Player " << player<<  " enter your row: "<<endl;
     char row;
     cin >> row;
-    cout << "Player enter your col: "<<endl;
+    cout << "Player " << player <<" enter your col: "<<endl;
     int  col;
     cin >> col;
 
+    if (cin.fail()) {
+      cin.clear();
+      cin.ignore(1000, '\n');
+      cout << "Invalid input!" << endl;
+      return false;
+    }
     // converting answers to indexes                                                                  
     int row_index = row - 'a';
     int col_index = col - 1;
@@ -50,6 +120,7 @@ bool  player_turn(char player){
     if (is_valid_move(row_index, col_index)) {
       place_player(player, row_index, col_index);
       print_board();
+      return true;
     }
     else {
       cout << "Invalid move!" << endl;
@@ -91,12 +162,15 @@ void print_board(){
 }
 
 bool check_row_win( char player){
-  for (int row_index = 0; row_index < 3;row_index++) {
+  for (int row_index = 0; row_index < 3; row_index++) {
     if (board[row_index][0] == player  &&
 	board [row_index][1] == player &&
 	board [row_index][2] == player) {
 	return true;
-	}}
+	}
+
+  }
+  
 
   return false;
 }
@@ -133,7 +207,7 @@ bool check_diag_win (char player){
 bool check_tie(){
     for (int row_index = 0; row_index < 3; row_index++){
         for (int col_index = 0; col_index < 3; col_index++){
-            if (board[row_index][col_index] == '_'){
+           if (board[row_index][col_index] == '_'){
                 return false;
             }
         }
